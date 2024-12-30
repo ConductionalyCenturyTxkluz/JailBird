@@ -1,3 +1,4 @@
+-- script by txkluz src for learned
 -- สร้าง ScreenGui สำหรับหน้า Loading
 local loadingGui = Instance.new("ScreenGui")
 loadingGui.Name = "LoadingScreen"
