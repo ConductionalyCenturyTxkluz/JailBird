@@ -1,0 +1,255 @@
+-- สร้าง ScreenGui สำหรับหน้า Loading
+local loadingGui = Instance.new("ScreenGui")
+loadingGui.Name = "LoadingScreen"
+loadingGui.Parent = game.Players.LocalPlayer.PlayerGui
+
+-- สร้าง ImageLabel สำหรับแสดงภาพในหน้า Loading
+local loadingImage = Instance.new("ImageLabel")
+loadingImage.Size = UDim2.new(0, 200, 0, 200)  -- ขนาดของภาพ
+loadingImage.Position = UDim2.new(0.5, -100, 0.5, -100)  -- ตำแหน่งอยู่กลางหน้าจอ
+loadingImage.Image = "https://wall.alphacoders.com/big.php?i=669047"  -- ใส่ Image ID ของ Roblox หรือ URL ภายนอก
+loadingImage.BackgroundTransparency = 1  -- ไม่ให้มีพื้นหลัง
+loadingImage.Parent = loadingGui
+
+-- สร้าง TextLabel สำหรับแสดงข้อความ "Loading..."
+local loadingText = Instance.new("TextLabel")
+loadingText.Size = UDim2.new(0, 400, 0, 50)
+loadingText.Position = UDim2.new(0.5, -200, 0.5, 100)
+loadingText.Text = "Loading... Please wait..."
+loadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
+loadingText.BackgroundTransparency = 1
+loadingText.TextScaled = true
+loadingText.Parent = loadingGui
+
+-- ฟังก์ชันที่ซ่อนหน้า loading เมื่อโหลดเสร็จ
+local function hideLoadingScreen()
+    loadingGui:Destroy()  -- เมื่อสคริปต์โหลดเสร็จ หน้า loading จะหายไป
+end
+
+-- สมมุติว่าหลังจากโหลดเสร็จ จะเป็นการแสดงหน้า Guest 666 หรือหน้าจอหลัก
+-- สำหรับการแสดงหน้า Guest 666
+local guestText = Instance.new("TextLabel")
+guestText.Size = UDim2.new(0, 400, 0, 50)
+guestText.Position = UDim2.new(0.5, -200, 0.5, -25)
+guestText.Text = "Welcome, Guest 666!"
+guestText.TextColor3 = Color3.fromRGB(255, 0, 0)  -- สีแดง
+guestText.BackgroundTransparency = 1
+guestText.TextScaled = true
+guestText.Parent = game.Players.LocalPlayer.PlayerGui
+
+-- สร้าง ImageLabel สำหรับแสดงภาพในหน้า Guest 666
+local guestImage = Instance.new("ImageLabel")
+guestImage.Size = UDim2.new(0, 200, 0, 200)  -- ขนาดของภาพ
+guestImage.Position = UDim2.new(0.5, -100, 0.5, 100)  -- ตำแหน่งอยู่กลางหน้าจอ
+guestImage.Image = "https://wall.alphacoders.com/big.php?i=669047"  -- ใส่ Image ID ของ Roblox หรือ URL ภายนอก
+guestImage.BackgroundTransparency = 1  -- ไม่ให้มีพื้นหลัง
+guestImage.Parent = game.Players.LocalPlayer.PlayerGui
+
+-- ซ่อนหน้าจอ Guest 666 หลังจากโหลดเสร็จ
+wait(3)  -- รอ 3 วินาที
+guestText:Destroy()
+guestImage:Destroy()
+
+-- เมื่อโหลดเสร็จแล้วให้ซ่อนหน้า loading
+hideLoadingScreen()
+
+-- test
+
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("Jailbird | Txkluz Gonnalie", "DarkTheme")
+local Tab = Window:NewTab("Main | PC")
+local Section = Tab:NewSection("Main | PC Func")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+
+-- สร้างตัวแสดงสถานะของ AimLock และ FPS
+local statusLabel = Drawing.new("Text")
+statusLabel.Color = Color3.fromRGB(255, 255, 255)
+statusLabel.Size = 18
+statusLabel.Position = Vector2.new(10, 10)
+statusLabel.Text = "AimLock: OFF | FPS: 0"
+
+local fpsLabel = Drawing.new("Text")
+fpsLabel.Color = Color3.fromRGB(255, 255, 255)
+fpsLabel.Size = 18
+fpsLabel.Position = Vector2.new(10, 30)
+fpsLabel.Text = "FPS: 0"
+
+-- ฟังก์ชันสำหรับคำนวณ FPS
+local function calculateFPS()
+    local lastTime = tick()
+    local frames = 0
+    local fps = 0
+
+    game:GetService("RunService").Heartbeat:Connect(function()
+        frames = frames + 1
+        if tick() - lastTime >= 1 then
+            fps = frames
+            frames = 0
+            lastTime = tick()
+            fpsLabel.Text = "FPS: " .. tostring(fps)
+        end
+    end)
+end
+
+-- เริ่มการคำนวณ FPS
+calculateFPS()
+
+-- ฟังก์ชันสำหรับ AimLock
+Section:NewButton("AimLock", "IF U USE YOU'RE CHEATER SUCK NO SKILL LOL", function()
+    -- Default settings
+    local teamCheck = true
+    local fov = 150
+    local smoothing = 1
+    local fovVisible = true
+    local fovColor = Color3.fromRGB(255, 128, 128)  -- Default FOV circle color
+
+    -- Create FOV ring (a circle drawn on the screen)
+    local RunService = game:GetService("RunService")
+    local FOVring = Drawing.new("Circle")
+    FOVring.Visible = fovVisible
+    FOVring.Thickness = 1.5
+    FOVring.Radius = fov
+    FOVring.Transparency = 1
+    FOVring.Color = fovColor
+    FOVring.Position = workspace.CurrentCamera.ViewportSize / 2
+
+    -- Function to get the closest target
+    local function getClosest(cframe)
+        local ray = Ray.new(cframe.Position, cframe.LookVector).Unit
+        local target = nil
+        local mag = math.huge
+        for i, v in pairs(game.Players:GetPlayers()) do
+            if v.Character and v.Character:FindFirstChild("Head") and v.Character:FindFirstChild("Humanoid") and v.Character:FindFirstChild("HumanoidRootPart") and v ~= game.Players.LocalPlayer and (v.Team ~= game.Players.LocalPlayer.Team or (not teamCheck)) then
+                local magBuf = (v.Character.Head.Position - ray:ClosestPoint(v.Character.Head.Position)).Magnitude
+                if magBuf < mag then
+                    mag = magBuf
+                    target = v
+                end
+            end
+        end
+        return target
+    end
+
+    -- Event loop for AimLock functionality with RenderStepped
+    local loop
+    loop = RunService.RenderStepped:Connect(function()
+        if not getgenv().AimLockEnabled then
+            return -- ถ้า AimLock ถูกปิด จะไม่ทำอะไร
+        end
+
+        local UserInputService = game:GetService("UserInputService")
+        local pressed = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) -- Right-click to aim
+        local cam = workspace.CurrentCamera
+        local zz = workspace.CurrentCamera.ViewportSize / 2
+        
+        if pressed then
+            local curTar = getClosest(cam.CFrame)
+            if curTar and curTar.Character and curTar.Character:FindFirstChild("Head") then
+                local ssHeadPoint = cam:WorldToScreenPoint(curTar.Character.Head.Position)
+                ssHeadPoint = Vector2.new(ssHeadPoint.X, ssHeadPoint.Y)
+                if (ssHeadPoint - zz).Magnitude < fov then
+                    -- Lerp camera position to lock on the target's head
+                    workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(CFrame.new(cam.CFrame.Position, curTar.Character.Head.Position), smoothing)
+                end
+            end
+        end
+
+        -- Disconnect loop and remove FOV ring if 'Delete' key is pressed
+        if UserInputService:IsKeyDown(Enum.KeyCode.Delete) then
+            loop:Disconnect()
+            FOVring:Remove()
+        end
+    end)
+
+    -- FOV Control Buttons and Sliders
+    Section:NewButton("Toggle FOV Visibility", "Hide or show the FOV ring", function()
+        fovVisible = not fovVisible
+        FOVring.Visible = fovVisible
+    end)
+
+    Section:NewSlider("Adjust FOV Radius", "Set the FOV radius", 50, 500, fov, function(value)
+        fov = value
+        FOVring.Radius = fov
+    end)
+
+    Section:NewColorPicker("FOV Color", "Pick a color for the FOV ring", fovColor, function(color)
+        fovColor = color
+        FOVring.Color = fovColor
+    end)
+
+    Section:NewSlider("Smoothing", "Adjust the smoothing factor", 0, 10, smoothing, function(value)
+        smoothing = value
+    end)
+
+    Section:NewToggle("Team Check", "Toggle to only lock onto enemies not in your team", function(state)
+        teamCheck = state
+    end)
+end)
+
+-- Keybind to Enable/Disable AimLock (Change Keybind to T)
+Section:NewKeybind("Toggle AimLock Keybind", "Press to toggle AimLock", Enum.KeyCode.T, function()
+    getgenv().AimLockEnabled = not getgenv().AimLockEnabled
+    statusLabel.Text = "AimLock: " .. (getgenv().AimLockEnabled and "ON" or "OFF")
+    print("AimLock " .. (getgenv().AimLockEnabled and "Enabled" or "Disabled"))
+end)
+
+-- ทำให้สถานะของ AimLock แสดงในหน้าจอ
+game:GetService("RunService").RenderStepped:Connect(function()
+    statusLabel.Text = "AimLock: " .. (getgenv().AimLockEnabled and "ON" or "OFF")
+    statusLabel.Position = Vector2.new(10, 10)
+    fpsLabel.Position = Vector2.new(10, 30)
+end)
+
+-- ฟังก์ชันสำหรับสร้าง ESP
+Section:NewButton("ESP", "ESP LINE PROCESS", function()
+    pcall(function() loadstring(game:HttpGet('https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua'))() end)
+end)
+-- moblie 
+local Tab = Window:NewTab("Moblie | Func")
+local Section = Tab:NewSection("Main | Moblie")
+Section:NewButton("Aimlock | Moblie", "in update bro don't use it", function()
+    print("Clicked")
+end)
+
+-- Setting Tab and Keybind
+local Tab = Window:NewTab("Setting")
+local Section = Tab:NewSection("Setting")
+Section:NewButton("inf yield", "admin", function()
+loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+end)
+Section:NewKeybind("Keybind ON/OFF", "fix on/off gui", Enum.KeyCode.F, function()
+    Library:ToggleUI()
+end)
+
+-- ข้อความ "This script not support moreover"
+Section:NewLabel("This script not support moreover")
+
+-- ปุ่มใหม่สำหรับคัดลอก Discord Link
+Section:NewButton("Copy Discord Link", "Click to copy Discord link", function()
+    local discordLink = "https://discord.gg/SN4ZF2zx"
+    
+    -- ใช้ setclipboard() เพื่อคัดลอก URL ไปยังคลิปบอร์ด
+    setclipboard(discordLink)
+    print("Discord link copied to clipboard: " .. discordLink)
+end)
+Section:NewLabel("If you use in Synapse X, Krnl, ScriptWare you can click this button bcuz it auto open your browser to join discord sever")
+Section:NewButton("Open Discord Link", "Click to open Discord link", function()
+    local discordLink = "https://discord.gg/SN4ZF2zx"
+    
+    -- ถ้าใช้ Krnl, Synapse X, หรือ Executor ที่รองรับ request
+    -- สำหรับ Krnl / Synapse X / ScriptWare สามารถใช้คำสั่งนี้ได้
+    if is_synapse_function() then
+        -- เปิด URL ในเบราว์เซอร์
+        request(discordLink)
+    else
+        -- แจ้งให้ทราบว่าไม่สามารถเปิด URL ได้
+        print("This Executor does not support opening URLs.")
+    end
+end)
+Section:NewLabel("Support By txk1uz")
+Section:NewLabel("Script By txk1uz")
+Section:NewLabel("Ui By Kavo")
+
+
